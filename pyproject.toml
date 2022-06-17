@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "yandex-be-test"
+version = "0.1.0"
+description = ""
+authors = ["andrei <tricar5@icloud.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.78.0"
+uvicorn = "^0.17.6"
+alembic = "^1.8.0"
+requests = "^2.28.0"
+psycopg2 = "^2.9.3"
+
+[tool.poetry.dev-dependencies]
+fastapi-code-generator = "^0.3.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
