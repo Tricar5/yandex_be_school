@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "yandex-be-test"
+name = "yandex_be_school"
 version = "0.1.0"
 description = ""
 authors = ["andrei <tricar5@icloud.com>"]

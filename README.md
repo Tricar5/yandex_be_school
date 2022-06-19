@@ -78,13 +78,13 @@ with openapi_client.ApiClient(configuration) as api_client:
 
 All URIs are relative to *http://localhost*
 
-Class | Method | HTTP request | Description
------------- | ------------- | ------------- | -------------
-*Api* | [**delete_id_delete**](docs/Api.md#delete_id_delete) | **DELETE** /delete/{id} | 
-*Api* | [**imports_post**](docs/Api.md#imports_post) | **POST** /imports | 
-*Api* | [**node_id_statistic_get**](docs/Api.md#node_id_statistic_get) | **GET** /node/{id}/statistic | 
-*Api* | [**nodes_id_get**](docs/Api.md#nodes_id_get) | **GET** /nodes/{id} | 
-*Api* | [**sales_get**](docs/Api.md#sales_get) | **GET** /sales | 
+| Class  | Method                                                         | HTTP request                 | Description |
+|--------|----------------------------------------------------------------|------------------------------|-------------|
+| *Api*  | [**delete_id_delete**](docs/Api.md#delete_id_delete)           | **DELETE** /delete/{id}      |             |
+| *Api*  | [**imports_post**](docs/Api.md#imports_post)                   | **POST** /imports            |             |
+| *Api*  | [**node_id_statistic_get**](docs/Api.md#node_id_statistic_get) | **GET** /node/{id}/statistic |             |
+| *Api*  | [**nodes_id_get**](docs/Api.md#nodes_id_get)                   | **GET** /nodes/{id}          |             |
+|  *Api* | [**sales_get**](docs/Api.md#sales_get)                         | **GET** /sales               |             |
 
 
 ## Documentation For Models
@@ -105,24 +105,4 @@ Class | Method | HTTP request | Description
 ## Author
 
 
-
-
-## Notes for Large OpenAPI documents
-If the OpenAPI document is large, imports in openapi_client.apis and openapi_client.models may fail with a
-RecursionError indicating the maximum recursion limit has been exceeded. In that case, there are a couple of solutions:
-
-Solution 1:
-Use specific imports for apis and models like:
-- `from openapi_client.api.default_api import DefaultApi`
-- `from openapi_client.model.pet import Pet`
-
-Solution 1:
-Before importing the package, adjust the maximum recursion limit as shown below:
-```
-import sys
-sys.setrecursionlimit(1500)
-import openapi_client
-from openapi_client.apis import *
-from openapi_client.models import *
-```
 
