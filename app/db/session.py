@@ -1,10 +1,15 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-SQLALCHEMY_DATABASE_URI = "postgresql://app:temp_pwd@127.0.0.1:5432/yandex"
+from app.core.config import settings
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URI,
+engine = create_async_engine(
+    settings.SQLALCHEMY_DATABASE_URI,
+    future=True,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Base
+Base = declarative_base()
+
+# Session
+SessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)

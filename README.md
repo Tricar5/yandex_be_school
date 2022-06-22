@@ -103,6 +103,3 @@ All URIs are relative to *http://localhost*
  All endpoints do not require authorization.
 
 ## Author
-
-
-
