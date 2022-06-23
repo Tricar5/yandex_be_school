@@ -4,6 +4,8 @@ from fastapi import APIRouter, FastAPI, Request
 
 from app.api.api import api_router
 
+from app.db.session import engine, Base
+
 root_router = APIRouter()
 
 app = FastAPI(
@@ -19,6 +21,12 @@ def root() -> dict:
     Root GET
     """
     return {"msg": "Hello, World!"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.middleware("http")

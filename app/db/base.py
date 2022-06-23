@@ -1,2 +1,3 @@
-from app.model.db_unit import DBShopUnit, DBShopUnitImports
-from app.db.session import Base
+from app.db.base_class import Base  # noqa
+from app.model.unit_model import ShopUnitDB  # noqa
+from app.model.unit_model import ShopImportDB  # noqa

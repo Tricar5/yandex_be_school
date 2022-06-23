@@ -16,6 +16,7 @@ importlib-resources = "^5.8.0"
 flake8 = "^4.0.1"
 asyncpg = "^0.25.0"
 greenlet = "^1.1.2"
+SQLAlchemy = {extras = ["asyncio"], version = "^1.4.37"}
 
 [tool.poetry.dev-dependencies]
 fastapi-code-generator = "^0.3.5"
