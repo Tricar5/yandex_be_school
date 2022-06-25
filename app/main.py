@@ -17,14 +17,14 @@ app = FastAPI(
     title="Mega Market Open API",
     version="1.0",
 )
-
+"""
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content=jsonable_encoder(Error(code=200,message='Невалидная схема документа или входные данные не верны.')),
     )
-
+"""
 @root_router.get("/", status_code=200)
 def root() -> dict:
     """

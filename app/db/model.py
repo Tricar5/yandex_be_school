@@ -3,11 +3,11 @@ from enum import Enum, unique
 from sqlalchemy import (
     Column,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
     MetaData,
     String,
     Table,
-    DDL, ForeignKeyConstraint,
 )
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID, ENUM
 
@@ -41,17 +41,17 @@ unit_import_tbl = Table(
                 "unit_import",
                 metadata,
                 Column('import_id', Integer, ForeignKey('import.id'), primary_key=True, nullable=False, index=True),
-                Column('id', UUID(as_uuid=True), ForeignKey('unit.id', ondelete="CASCADE"), primary_key=True,
+                Column('id', UUID(as_uuid=True), primary_key=True,
                        nullable=False, index=True),
                 Column('type', ENUM(UnitType, name='unit_type'), nullable=False),
                 Column('name', String(256), nullable=False),
                 Column('price', Integer, nullable=True),
-                Column('parent_id', UUID(as_uuid=True), nullable=True, index=True),
+                Column('parent_id', UUID(as_uuid=True),
+                       nullable=True, index=True),
                 Column('updated_at', TIMESTAMP(timezone=True), nullable=False, index=True),
-                #ForeignKeyConstraint(['import_id', 'parent_id'],
-                #            ['unit_import.import_id', 'unit_import.id'], ondelete="CASCADE")
-
-)
+                )
+                #ForeignKey(('import_id', 'parent_id'),
+                #           ('unit_import.import_id', 'unit_import.id'), ondelete="CASCADE"))
 
 
 unit_tbl = Table(

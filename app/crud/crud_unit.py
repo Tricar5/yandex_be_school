@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncTransaction
 from typing import Dict, List
 from datetime import datetime
 
+from sqlalchemy import func
+
 
 class CRUDUnit:
     MAX_UNIT_IMPORT_PER_INSERT = 32767 // len(unit_import_tbl.columns)
@@ -47,13 +49,24 @@ class CRUDUnit:
             chunked_import_rows = self.make_chunks(import_rows,
                                                    self.MAX_UNIT_IMPORT_PER_INSERT)
 
-            await self.update_units(conn, import_rows)
-
             query = unit_import_tbl.insert()
             for chunk in chunked_import_rows:
                 await conn.execute(query.values(list(chunk)))
 
+            await self.update_units(conn, import_rows)
+
             return import_id
+
+    async def recalculate_categories(self, conn, row):
+        category_stack = []
+
+        for item in row.items():
+            if item['type'] and item['parent_id'] not in category_stack:
+                category_stack.append(item['parent_id'])
+
+        for id in category_stack:
+            unit_tbl.select([unit_tbl.c.parent_id, func.sum(unit_tbl.c.price)]).groupby(unit_tbl.c.parent_id)
+
 
     async def update_units(self, conn: AsyncTransaction, import_rows):
 
