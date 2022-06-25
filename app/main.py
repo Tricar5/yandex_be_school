@@ -1,10 +1,14 @@
 import time
 
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request,status
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from app.schema.schemas import Error
+from fastapi.exceptions import RequestValidationError
 
 from app.api.api import api_router
 
-from app.db.session import engine, Base
+from app.db.db import engine, metadata
 
 root_router = APIRouter()
 
@@ -14,6 +18,12 @@ app = FastAPI(
     version="1.0",
 )
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=jsonable_encoder(Error(code=200,message='Невалидная схема документа или входные данные не верны.')),
+    )
 
 @root_router.get("/", status_code=200)
 def root() -> dict:
@@ -26,7 +36,7 @@ def root() -> dict:
 @app.on_event("startup")
 async def startup_event():
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(metadata.create_all)
 
 
 @app.middleware("http")
@@ -38,6 +48,7 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
+
 app.include_router(root_router)
 app.include_router(api_router)
 
@@ -45,4 +56,4 @@ if __name__ == "__main__":
     # Use this for debugging purposes only
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")
+    uvicorn.run(app, host="0.0.0.0", port=80)

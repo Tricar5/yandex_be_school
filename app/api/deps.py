@@ -1,25 +1,20 @@
 from typing import Generator
 
 # from app.crud.unit_crud_old import ImportCrudHandler
-from app.db.session import SessionLocal
-from app.model.unit_model import ShopUnitDB, ShopImportDB
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.db import engine
+#from app.db.model import ShopUnitDB, ShopImportDB
 
-from app.crud.crud_unit import UnitCRUD, ImportCRUD
+from app.crud.crud_unit import CRUDUnit
 
 
-async def get_db() -> Generator:
-    db = SessionLocal()
-    db.current_user_id = None
+async def get_eng() -> Generator:
     try:
-        yield db
+        yield engine
     finally:
-        await db.close()
+        await engine.dispose()
 
 
-async def get_unit_crud() -> UnitCRUD:
-    return UnitCRUD(ShopUnitDB)
+async def get_import_crud() -> CRUDUnit:
+    return CRUDUnit()
 
 
-async def get_import_crud() -> ImportCRUD:
-    return ImportCRUD(ShopImportDB)

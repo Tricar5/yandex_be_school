@@ -1,12 +1,5 @@
-from uuid import UUID
-
-from app.schema.schemas import ShopImportCreate, ShopUnitCreate, ShopUnitImport, ShopUnitType
-from fastapi.encoders import jsonable_encoder
-from app.model.unit_model import ShopImportDB, ShopUnitDB
-
-from typing import Dict, Generator, Union
-
-
+from app.schema.schemas import ShopImportCreate, ShopUnitCreate, ShopUnitImport
+#from app.db.model import ShopImportDB
 
 
 def generate_unit_imports(id: int, item: ShopUnitImport)-> ShopUnitCreate:

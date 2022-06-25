@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 
 
 class ShopUnitType(Enum):
@@ -38,8 +38,8 @@ class ShopUnit(BaseModel):
     price: Optional[int] = Field(
         None,
         description="Целое число, для категории - это средняя цена всех дочерних товаров(включая товары "
-        "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
-        "числа. Если категория не содержит товаров цена равна null.",
+                    "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
+                    "числа. Если категория не содержит товаров цена равна null.",
     )
     children: Optional[List["ShopUnit"]] = Field(
         None,
@@ -75,15 +75,19 @@ class ShopUnitImport(BaseModel):
 
 class ShopUnitImportRequest(BaseModel):
     items: Optional[List[ShopUnitImport]] = Field(
-        None, description="Импортируемые элементы"
-    )
-    updateDate: Optional[datetime] = Field(
+        None, description="Импортируемые элементы")
+
+    updateDate: str = Field(
         None,
         description="Время обновления добавляемых товаров/категорий.",
         example="2022-05-28T21:12:01.000Z",
     )
 
-
+    @validator('updateDate',)
+    def validate_dt(cls, v):
+        if not datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f%z'):
+            raise Error(code=400, message='Невалидная схема документа или входные данные не верны.')
+        return datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f%z')
 
 
 # For import table
@@ -113,7 +117,7 @@ class ShopUnitCreate(BaseModel):
 
 class ShopImport(BaseModel):
     id: int
-    update_data: datetime
+    update_date: datetime
 
     class Config:
         orm_mode = True
@@ -124,7 +128,6 @@ class ShopImportCreate(BaseModel):
         default=None,
     )
     update_date: datetime = Field(..., description="Время выгрузки")
-
 
     class Config:
         orm_mode = True
@@ -146,8 +149,8 @@ class ShopUnitStatisticUnit(BaseModel):
     price: Optional[int] = Field(
         None,
         description="Целое число, для категории - это средняя цена всех дочерних товаров(включая товары "
-        "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
-        "числа. Если категория не содержит товаров цена равна null.",
+                    "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
+                    "числа. Если категория не содержит товаров цена равна null.",
     )
     date: datetime = Field(..., description="Время последнего обновления элемента.")
 
