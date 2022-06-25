@@ -24,27 +24,3 @@ Base = declarative_base()
 
 
 SessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
-
-"""
-    import_obj = ShopImportCreate(
-        update_date=data.updateDate
-    )
-
-    enc_obj = jsonable_encoder(import_obj)
-
-    db_obj = ShopImportDB(**import_obj.dict())
-
-    db_obj = await crud_import.create(db, data=db_obj)
-
-    import_id = db_obj.id
-
-    print(db_obj)
-
-    for item in data.items:
-        obj_unit_in = generate_unit_imports(import_id, item)
-
-        added_obj = await crud_import.create(db, obj_unit_in)
-
-    return added_obj
-"""

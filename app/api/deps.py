@@ -2,10 +2,11 @@ from typing import Generator
 
 # from app.crud.unit_crud_old import ImportCrudHandler
 from app.db.session import SessionLocal
-from app.model.unit_model import ShopUnitDB, ShopImportDB
+from app.model.db_models import ShopUnitDB, ShopImportDB, ShopUnitImportDB
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.crud_unit import UnitCRUD, ImportCRUD
+from app.crud.crud_unit import CRUDUnit, CRUDImport, CRUDUnitImport
+from app.api.handlers.import_handler import HandlerImport
 
 
 async def get_db() -> Generator:
@@ -17,9 +18,17 @@ async def get_db() -> Generator:
         await db.close()
 
 
-async def get_unit_crud() -> UnitCRUD:
-    return UnitCRUD(ShopUnitDB)
+def get_import_crud() -> CRUDImport:
+    return CRUDImport(ShopImportDB)
 
 
-async def get_import_crud() -> ImportCRUD:
-    return ImportCRUD(ShopImportDB)
+def get_unit_import_crud() -> CRUDUnitImport:
+    return CRUDUnitImport(ShopUnitImportDB)
+
+
+def get_unit_crud() -> CRUDUnit:
+    return CRUDUnit(ShopUnitDB)
+
+
+async def get_import_handler() -> HandlerImport:
+    return HandlerImport(get_import_crud(), get_unit_import_crud(), get_unit_crud())

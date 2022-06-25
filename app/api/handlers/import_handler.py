@@ -1,51 +1,100 @@
 from uuid import UUID
 
-from app.schema.schemas import ShopImportCreate, ShopUnitCreate, ShopUnitImport, ShopUnitType
 from fastapi.encoders import jsonable_encoder
-from app.model.unit_model import ShopImportDB, ShopUnitDB
-
 from typing import Dict, Generator, Union
+from datetime import datetime
+
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
+
+from app.schema.base_schema import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
+from app.schema.request import ShopUnitImport, ShopUnitImportRequest
+from app.model.db_models import ShopImportDB, ShopUnitDB, ShopUnitImportDB
+from app.crud.crud_unit import CRUDUnitImport, CRUDImport, CRUDUnit
 
 
+# from sqlalchemy import exists, select
 
 
-def generate_unit_imports(id: int, item: ShopUnitImport)-> ShopUnitCreate:
-    return ShopUnitCreate(
-        import_id=id,
-        unit_id=item.id,
-        name=item.name,
-        price=item.price,
-        type=item.type,
-        parentId = item.parentId,
-    )
+class HandlerImport:
+    def __init__(self, crud_import: CRUDImport, crud_u_import: CRUDUnitImport, crud_unit: CRUDUnit):
+        self.crud_import = crud_import
+        self.crud_u_import = crud_u_import
+        self.crud_unit = crud_unit
 
-async def handle_import(db, crud_unit, crud_import, data):
+    @classmethod
+    def generate_unit_imports(cls, import_id: int, date: datetime, item: ShopUnitImport) -> ShopUnitImportSchema:
+        return ShopUnitImportSchema(
+            import_id=import_id,
+            id=item.id,
+            name=item.name,
+            price=item.price,
+            type=item.type,
+            parent_id=item.parentId,
+            update_at=date
+        )
 
+    @classmethod
+    def generate_unit(cls, date: datetime, item: ShopUnitImport) -> ShopUnitSchema:
+        return ShopUnitSchema(
+            id=item.id,
+            name=item.name,
+            price=item.price,
+            type=item.type,
+            parent_id=item.parentId,
+            update_at=date
+        )
 
-    import_obj = ShopImportCreate(
-        update_date= data.updateDate
-    )
+    async def handle_import(self, db: AsyncSessionTransaction, date: datetime):
 
+        db_obj = ShopImportDB(update_at=date)
 
-    db_obj = ShopImportDB(**import_obj.dict())
+        import_obj = await self.crud_import.create(db, data=db_obj)
 
-    obj_added = await crud_import.create(db, data=db_obj)
+        return import_obj
 
-    db.refresh(obj_added)
+    async def handle_unit_import(self, db, import_id: int, date: datetime,
+                                 items: ShopUnitImport):
+        cnt = 0
+        for item in items:
+            schema_unit = self.generate_unit(date, item)
+            schema_unit_import = self.generate_unit_imports(import_id, date, item)
 
-    import_id = obj_added.id
+            db_unit = ShopUnitDB(**schema_unit.dict())
 
-    return obj_added
+            db_unit_import = ShopUnitImportDB(**schema_unit_import.dict())
 
-"""
-    for item in data.items:
+            # проверяем отсутствие элемента
 
-        obj_unit = generate_unit_imports(import_id, item)
+            res = await self.crud_unit.exists(db, db_unit.id)
 
-        obj_unit_in = ShopUnitDB(**obj_unit.dict())
+            if res:
+                db_unit = await self.crud_unit.create(db=db, data=db_unit)
 
-        added_obj = await crud_unit.create(db, data=obj_unit_in)
+            else: # элемент существует
+                # проверяем отсутствие элемента с большей датой обновления
+                newer = await self.crud_unit.exists_newer(db, db_unit.updateDate)
+                if newer:
+                    db_unit = await self.crud_unit.update(db=db, obj=db_unit, data=schema_unit)
 
-    return obj_added
+            # Добавляем записи импортов
+            db_unit_import = await self.crud_u_import.create(db=db, data=db_unit_import)
+            cnt += 1
 
-"""
+        return cnt
+
+    async def handle(self, db, data: ShopUnitImportRequest) -> Dict:
+
+        date = data.updateDate
+        items = data.items
+
+        async with db.begin():
+            import_model = await self.handle_import(db, date)
+
+            await db.commit()
+
+        import_id = import_model.id
+
+        async with db.begin():
+            cnt = await self.handle_unit_import(db, import_id, date, items)
+
+        return {'id': import_id, 'date': date, 'total_items': cnt}

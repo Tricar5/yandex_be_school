@@ -4,7 +4,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query
 
-from app.schema.schemas import Error, ShopUnit, ShopUnitStatisticResponse
+from app.schema.response import ShopUnitStatisticResponse, ShopUnitNode
+from app.schema.base_schema import Error, ShopUnitType
 
 router = APIRouter()
 
@@ -22,13 +23,6 @@ async def get_node_id_statistic(
     pass
 
 
-@router.get(
-    "/nodes/{id}",
-    response_model=ShopUnit,
-    responses={"400": {"model": Error}, "404": {"model": Error}},
-)
-async def get_nodes_id(id: UUID) -> Union[ShopUnit, Error]:
-    pass
 
 
 @router.get(

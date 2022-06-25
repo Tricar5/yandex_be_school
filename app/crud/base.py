@@ -60,6 +60,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         db_obj = self.model(**obj_data)
         db.add(db_obj)
+
         return db_obj
 
     async def update(
