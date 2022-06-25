@@ -42,6 +42,12 @@ class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
         Передаем параметры для фильтрации в kwargs.
         """
 
+        stmt = select(self.model).filter(getattr(self.model, "id") == unit_id)
+        res = await db.execute(stmt)
+
+        if len(res) == 0:
+            return 0
+
         statement = delete(self.model)
         statement = statement.filter(getattr(self.model, "id") == unit_id)
         statement = await db.execute(statement)

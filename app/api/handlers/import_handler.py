@@ -29,8 +29,8 @@ class HandlerImport:
             name=item.name,
             price=item.price,
             type=item.type,
-            parent_id=item.parentId,
-            update_at=date
+            parentId=item.parentId,
+            updateDate=date
         )
 
     @classmethod
@@ -40,13 +40,13 @@ class HandlerImport:
             name=item.name,
             price=item.price,
             type=item.type,
-            parent_id=item.parentId,
-            update_at=date
+            parentId=item.parentId,
+            updateDate=date
         )
 
     async def handle_import(self, db: AsyncSessionTransaction, date: datetime):
 
-        db_obj = ShopImportDB(update_at=date)
+        db_obj = ShopImportDB(updateDate=date)
 
         import_obj = await self.crud_import.create(db, data=db_obj)
 

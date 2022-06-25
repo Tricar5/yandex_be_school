@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
+from sqlalchemy import func
 
 metadata = MetaData()
 
@@ -19,7 +20,7 @@ class ShopImportDB(Base):
     __tablename__ = "import"
 
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
-    update_at = Column(TIMESTAMP(timezone=True), index=True)
+    updateDate = Column(TIMESTAMP(timezone=True), index=True)
 
 
 class ShopUnitImportDB(Base):

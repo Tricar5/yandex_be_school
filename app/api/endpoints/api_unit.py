@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, selectinload
 
 from starlette.responses import Response
@@ -23,7 +24,7 @@ router = APIRouter()
 @router.post(
     "/imports",
     response_model=None,
-    status_code=201,
+    status_code=200,
     responses={"400": {"model": Error}},
 )
 async def post_imports(
@@ -34,7 +35,7 @@ async def post_imports(
 
     res = await handler.handle(db, import_obj)
 
-    return res
+    return Response(status_code=200)
 
 
 
@@ -51,7 +52,10 @@ async def delete_id(id: UUID,
     async with db.begin():
         res = await crud_unit.remove(db, id)
 
-    return Response('', status_code=200)
+    if res == 0:
+        raise HTTPException(status_code=404)
+
+    return Response(status_code=200)
 
 @router.get(
     "/nodes/{id}",
