@@ -33,38 +33,7 @@ class HandlerChildren:
                 "id": node.id,
                 "name": node.name,
                 "parentId": node.parentId,
-                "price": node.price,
-                "date": node.update_date,
-                "type": node.type,
-                "children": [recursive(child) for child in node.children]
-                }
-            else:
-                return {
-                "id": node.id,
-                "name": node.name,
-                "parentId": node.parentId,
-                "price": node.price,
-                "date": node.update_date,
-                "type": node.type,
-                "children": None
-                }
-
-        return recursive(basic_tree)
-
-    async def traverse_response_tree(self, basic_tree: ShopUnitDB):
-
-        """
-        Трассировка и форматирования nested дерева из базы
-        :param d: Результ lazyloading с помощью ORM модели
-        :return:
-        """
-        def recursive(node: ShopUnitDB):
-            if node.type == UnitType.CATEGORY:
-                return {
-                "id": node.id,
-                "name": node.name,
-                "parentId": node.parentId,
-                "price": node.price,
+                "price": comp_mean([child.price for child in node.children]),
                 "date": node.update_date,
                 "type": node.type,
                 "children": [recursive(child) for child in node.children]
