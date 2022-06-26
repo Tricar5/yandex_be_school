@@ -1,0 +1,21 @@
+[Unit]
+Description=JFrog service with docker-compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+
+WorkingDirectory=/home/ubuntu/yandex_be_school
+
+# Remove old containers, network and volumes
+ExecStartPre=/usr/local/bin/docker-compose -f /home/ubuntu/yandex_be_school/docker-compose.yaml down -v
+
+# Compose up
+ExecStart=/usr/local/bin/docker-compose -f /home/ubuntu/yandex_be_school/docker-compose.yaml up
+
+# Compose down, remove containers
+ExecStop=/usr/local/bin/docker-compose -f /home/ubuntu/yandex_be_school/docker-compose.yaml down
+
+[Install]
+WantedBy=multi-user.target
