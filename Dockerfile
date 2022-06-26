@@ -22,6 +22,6 @@ RUN poetry install --no-dev
 COPY /app /application/app
 COPY main.py /application
 
-EXPOSE 8000
+EXPOSE 80
 
 CMD ["python", "main.py"]

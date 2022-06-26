@@ -3,7 +3,10 @@ version: "3.8"
 services:
   api:
     build: .
-    network_mode: "host"
+    ports:
+      - "80:80"
+    links:
+      - "postgresdb:database"
     depends_on:
       - postgresdb
 
@@ -13,4 +16,5 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
-    network_mode: "host"
+    ports:
+      - "5432:5432"
