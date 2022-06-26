@@ -3,7 +3,6 @@ from uuid import UUID
 from fastapi.encoders import jsonable_encoder
 from typing import Dict, Generator, Union
 from datetime import datetime
-import numpy as np
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 from app.schema.schemas import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
