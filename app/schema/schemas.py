@@ -2,18 +2,15 @@
 #   filename:  openapi.yaml
 #   timestamp: 2022-06-14T16:28:13+00:00
 
-
+from typing import Union
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+from app.model.db_models import UnitType as ShopUnitType
 from uuid import UUID
 from pydantic import BaseModel, Field
 from fastapi import HTTPException
 
-
-class ShopUnitType(Enum):
-    OFFER = "OFFER"
-    CATEGORY = "CATEGORY"
 
 
 class ShopImportSchema(BaseModel):
@@ -51,7 +48,6 @@ class ShopUnitSchema(BaseModel):
     class Config:
         orm_mode = True
         use_enum_values = True
-
 
 class ShopUnitImportSchema(ShopUnitSchema):
     import_id: int = Field(

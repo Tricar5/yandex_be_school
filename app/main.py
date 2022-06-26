@@ -18,14 +18,13 @@ app = FastAPI(
     title="Mega Market Open API",
     version="1.0",
 )
-"""
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content=jsonable_encoder(Error(code=200, message='Невалидная схема документа или входные данные не верны.')),
+        content=jsonable_encoder(Error(code=400, message='Невалидная схема документа или входные данные не верны.')),
     )
-"""
 
 @root_router.get("/", status_code=200)
 def root() -> dict:
@@ -52,9 +51,3 @@ async def add_process_time_header(request: Request, call_next):
 
 app.include_router(root_router)
 app.include_router(api_router)
-
-if __name__ == "__main__":
-    # Use this for debugging purposes only
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")

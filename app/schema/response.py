@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta
 from time import time
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -33,7 +33,7 @@ class ShopUnitNode(BaseModel):
                     "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
                     "числа. Если категория не содержит товаров цена равна null.",
     )
-    children: Optional[List["ShopUnitNode"]] = Field(
+    children: Union[List["ShopUnitNode"], None] = Field( #Optional[List["ShopUnitNode"]]
         None,
         description="Список всех дочерних товаров\\категорий. Для товаров поле равно null.",
     )

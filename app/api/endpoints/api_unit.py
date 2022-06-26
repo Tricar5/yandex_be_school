@@ -11,8 +11,8 @@ from app.crud.crud_unit import CRUDUnit
 
 from app.api.handlers.import_handler import HandlerImport
 from app.api.handlers.сhild_handler import HandlerChildren
-
-from app.schema.schemas import Error
+from app.model.db_models import ShopUnitDB, UnitType
+from app.schema.schemas import Error, ShopUnitSchema
 from app.schema.request import ShopUnitImportRequest
 from app.schema.response import ShopUnitNode
 from fastapi.encoders import jsonable_encoder
@@ -60,7 +60,7 @@ async def delete_id(id: UUID,
 @router.get(
     "/nodes/{id}",
     response_model=None,
-    responses={"400": {"model": Error}, "404": {"model": Error}},
+    #responses={"400": {"model": Error}, "404": {"model": Error}},
 )
 async def get_nodes_id(id: UUID,
                        db: Session = Depends(deps.get_db),
@@ -70,6 +70,6 @@ async def get_nodes_id(id: UUID,
     res = await handler.handle(db, id)
 
     if res is None:
-        return JSONResponse(jsonable_encoder(Error(code=404, message="Item not found")), status_code=404)
+        return JSONResponse(jsonable_encoder(Error(code=404, message="Item not found", children=None)), status_code=404)
 
-    return res
+    return jsonable_encoder(res)

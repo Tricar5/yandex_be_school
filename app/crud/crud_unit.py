@@ -1,10 +1,9 @@
 from uuid import UUID
 
 from app.crud.base import CRUDBase
-from app.model.db_models import ShopUnitDB, ShopImportDB, ShopUnitImportDB
+from app.model.db_models import ShopUnitDB, ShopImportDB, ShopUnitImportDB, UnitType
 
 from app.schema.schemas import ShopImportSchema, ShopUnitSchema, ShopUnitImportSchema
-
 from sqlalchemy.ext.asyncio import AsyncSession as Session
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, delete, func
@@ -53,22 +52,28 @@ class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
         """
         stmt = select(self.model).filter(self.model.id == unit_id)
         stmt = await db.execute(stmt)
-        obj = stmt.scalars().all()
+        obj: ShopUnitDB = stmt.scalars().first()
 
         # если запрос пустой, то удаление не требуется и возвращаем, что объект не найден
-        if len(obj) == 0:
+        if not obj:
             return None
 
-        stmt = select(self.model).filter(getattr(self.model, "id") == unit_id)
-        res = await db.execute(stmt)
+        # рекурсивное удаление
+        if obj.type == UnitType.CATEGORY:
+            list_to_delete = obj.children
+            
+            while list_to_delete:
+                current_item: ShopUnitDB = list_to_delete.pop()
+                if current_item.type == UnitType.CATEGORY:
+                    list_to_delete += current_item.children
+                statement = delete(self.model)
+                statement = statement.filter(getattr(self.model, "id") == current_item.id)
+                statement = await db.execute(statement)
 
-        if len(res) == 0:
-            return 0
 
         statement = delete(self.model)
         statement = statement.filter(getattr(self.model, "id") == unit_id)
         statement = await db.execute(statement)
-        #await db.commit()
 
         return unit_id
 

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     DATABASE_HOST: str = "127.0.0.1"
     DATABASE_NAME: str = "postgres"
     DATABASE_USERNAME: str = "postgres"
-    DATABASE_PASSWORD: str = "post"
+    DATABASE_PASSWORD: str = "postgres"
 
     class Config:
         case_sensitive = True
