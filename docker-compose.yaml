@@ -9,6 +9,7 @@ services:
       - "postgresdb:database"
     depends_on:
       - postgresdb
+    restart: always
 
   postgresdb:
     image: postgres
@@ -20,6 +21,7 @@ services:
       - pg:/var/lib/pg
     ports:
       - "5432:5432"
+    restart: always
 volumes:
   pg:
     driver: local

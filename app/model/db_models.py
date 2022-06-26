@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
-from sqlalchemy import func
+from sqlalchemy import func, DDL
 
 metadata = MetaData()
 
@@ -59,3 +59,25 @@ class ShopUnitDB(Base):
     update_date = Column(TIMESTAMP(timezone=True), index=True)
     children = relationship("ShopUnitDB", lazy="selectin", join_depth=10)
 
+func = DDL(
+    """
+    create or replace procedure compute_parent_mean(
+   parent_id uuid
+)
+language plpgsql
+as $$
+begin
+    -- subtracting the amount from the sender''s account
+    update unit
+    set price = c.child_price, update_date = updated
+    from (select "parentId",
+                 max(update_date) as updated,
+                 avg(price) as child_price
+          from unit
+          where "parentId" = parent_id
+          group by "parentId") c
+    where id = c."parentId";
+    commit;
+end;$$
+"""
+)
