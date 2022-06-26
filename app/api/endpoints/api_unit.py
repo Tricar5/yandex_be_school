@@ -12,7 +12,7 @@ from app.crud.crud_unit import CRUDUnit
 from app.api.handlers.import_handler import HandlerImport
 from app.api.handlers.сhild_handler import HandlerChildren
 
-from app.schema.schemes import Error
+from app.schema.schemas import Error
 from app.schema.request import ShopUnitImportRequest
 from app.schema.response import ShopUnitNode
 from fastapi.encoders import jsonable_encoder

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, validator
 
-from app.schema.schemes import ShopUnitType, Error
+from app.schema.schemas import ShopUnitType, Error
 
 
 class ShopUnitImport(BaseModel):

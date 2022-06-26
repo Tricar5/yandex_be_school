@@ -6,7 +6,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
-from app.schema.schemes import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
+from app.schema.schemas import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
 from app.schema.request import ShopUnitImport, ShopUnitImportRequest
 from app.schema.response import ShopUnitNode
 from app.model.db_models import ShopImportDB, ShopUnitDB, ShopUnitImportDB
@@ -21,11 +21,29 @@ class HandlerChildren:
         self.crud_unit = crud_unit
 
 
+    async def traverse_response_tree(self, d):
+        if len(d['children']) == 0:
+            return {'id': d['id'],
+                    'name': d['name'],
+                    'parentId': d['parentId'],
+                    'price': d['price'],
+                    'type': d['type'],
+                    'updateDate': d['updateDate']}
+
+        return {'id': d['id'],
+                'name': d['name'],
+                'parentId': d['parentId'],
+                'price': sum(
+                    [children['price'] if type(children['price']) is int else 0 for children in d['children']]) / len(
+                    [children['price'] if type(children['price']) is int else 0 for children in d['children']]),
+                'type': d['type'],
+                'updateDate': d['updateDate'],
+                'children': [self.traverse_response_tree(children) for children in d['children']]}
+
     async def handle(self, db, unit_id: UUID) -> ShopUnitNode:
         async with db.begin():
-            res = await self.crud_unit.get_first(db, id=unit_id)
+            basic_tree = await self.crud_unit.get_first(db, id=unit_id)
 
-        #if len(res) == 0:
-        #    return None
+        res = await self.traverse_response_tree(basic_tree)
 
         return res

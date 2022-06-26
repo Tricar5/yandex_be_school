@@ -3,14 +3,16 @@ from uuid import UUID
 from app.crud.base import CRUDBase
 from app.model.db_models import ShopUnitDB, ShopImportDB, ShopUnitImportDB
 
-from app.schema.schemes import ShopImportSchema, ShopUnitSchema, ShopUnitImportSchema
+from app.schema.schemas import ShopImportSchema, ShopUnitSchema, ShopUnitImportSchema
 
 from sqlalchemy.ext.asyncio import AsyncSession as Session
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, delete, func
 
 class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
-
+    """
+    Унаследованный CRUD класс для операций с выгрузками
+    """
     async def exists(self, db: Session, value) -> int:
         """
         Функция для извлечения объекта из БД.

@@ -6,7 +6,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
-from app.schema.schemes import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
+from app.schema.schemas import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
 from app.schema.request import ShopUnitImport, ShopUnitImportRequest
 from app.model.db_models import ShopImportDB, ShopUnitDB, ShopUnitImportDB
 from app.crud.crud_unit import CRUDUnitImport, CRUDImport, CRUDUnit
@@ -16,6 +16,9 @@ from app.crud.crud_unit import CRUDUnitImport, CRUDImport, CRUDUnit
 
 
 class HandlerImport:
+    """
+    Класс обеспечивающий импорт и вставку новых значений
+    """
     def __init__(self, crud_import: CRUDImport, crud_u_import: CRUDUnitImport, crud_unit: CRUDUnit):
         self.crud_import = crud_import
         self.crud_u_import = crud_u_import
@@ -55,14 +58,28 @@ class HandlerImport:
     async def handle_unit_import(self, db, import_id: int, date: datetime,
                                  items: ShopUnitImport):
 
-        schema_unit_import = [self.generate_unit_imports(import_id, date, item) for item in items]
-        db_unit_imports = [ShopUnitImportDB(**schema_unit_import.dict()) for schema_import in schema_unit_import]
+        """
+        Что мы должны сделать:
+        Поместить в одну транзакцию новые значения, чтобы избежать конфликта по первичному ключу
+        Отключение нарушает целостность таблицы
 
-        schema_unit = [self.generate_unit(date, item)  for item in items]
-        db_units = [ShopUnitDB(**schema_unit.dict()) for item in schema_unit]
+
+        :param db:
+        :param import_id:
+        :param date:
+        :param items:
+        :return:
+        """
+
+        schema_unit_import = [self.generate_unit_imports(import_id, date, item) for item in items]
+        db_unit_imports = [ShopUnitImportDB(**schema.dict()) for schema in schema_unit_import]
+
+        schema_unit = [self.generate_unit(date, item) for item in items]
+        db_units = [ShopUnitDB(**schema.dict()) for schema in schema_unit]
 
         n_exists = []
         exists = []
+
         for db_unit in db_units:
 
             # проверяем отсутствие элемента
@@ -75,20 +92,20 @@ class HandlerImport:
             else:
                 exists.append(db_unit)
 
-        if len(n_exists)>0:
+        if len(n_exists) > 0:
             if len(n_exists) == 1:
                 res = db.add(n_exists[0])
             else:
                 db.add_all(n_exists)
 
-        for db_unit in exists:
+        for i in range(len(exists)):
 
-            await self.crud_unit.update(db=db, obj=db_unit, data=db_unit.__dict__)
+            exists[i] = await self.crud_unit.update(db=db, obj=exists[i], data=exists[i].__dict__)
 
         # Добавляем записи импортов
         res = db.add_all(db_unit_imports)
 
-        return db
+        return res
 
     async def handle(self, db, data: ShopUnitImportRequest) -> Dict:
 

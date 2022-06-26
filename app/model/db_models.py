@@ -17,6 +17,9 @@ class UnitType(enum.Enum):
 
 
 class ShopImportDB(Base):
+    """
+    Таблица для ведения учетов выгрузки (инкремента)
+    """
     __tablename__ = "import"
 
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
@@ -24,6 +27,9 @@ class ShopImportDB(Base):
 
 
 class ShopUnitImportDB(Base):
+    """
+        Таблица для формирования базы покупок+импортов
+    """
     __tablename__ = "unit_import"
     import_id = Column(Integer, ForeignKey("import.id"), primary_key=True, index=True)
     id = Column(UUID(as_uuid=True), ForeignKey('unit.id', ondelete="CASCADE"), primary_key=True, index=True)
@@ -37,6 +43,9 @@ class ShopUnitImportDB(Base):
 
 
 class ShopUnitDB(Base):
+    """
+    Таблица для ведения актуальной базы покупки
+    """
     __tablename__ = "unit"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True)

@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.schema.schemes import ShopUnitType
+from app.schema.schemas import ShopUnitType
 
 class ShopUnitNode(BaseModel):
     id: UUID = Field(
