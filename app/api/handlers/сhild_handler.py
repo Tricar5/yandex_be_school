@@ -22,6 +22,12 @@ class HandlerChildren:
 
 
     async def traverse_response_tree(self, d):
+
+        """
+        Трассировка и форматирования nested дерева из базы
+        :param d: Результ lazyloading с помощью ORM модели
+        :return:
+        """
         if len(d['children']) == 0:
             return {'id': d['id'],
                     'name': d['name'],
@@ -41,6 +47,12 @@ class HandlerChildren:
                 'children': [self.traverse_response_tree(children) for children in d['children']]}
 
     async def handle(self, db, unit_id: UUID) -> ShopUnitNode:
+        """
+        Обработчик выгрузки по нодам
+        :param db:
+        :param unit_id:
+        :return:
+        """
         async with db.begin():
             basic_tree = await self.crud_unit.get_first(db, id=unit_id)
 

@@ -48,7 +48,12 @@ class HandlerImport:
         )
 
     async def handle_import(self, db: AsyncSessionTransaction, date: datetime):
-
+        """
+        Получение инкремента для импорта
+        :param db: транзакция БД
+        :param date: дата
+        :return: инкремент
+        """
         db_obj = ShopImportDB(updateDate=date)
 
         import_obj = await self.crud_import.create(db, data=db_obj)
@@ -64,10 +69,10 @@ class HandlerImport:
         Отключение нарушает целостность таблицы
 
 
-        :param db:
-        :param import_id:
-        :param date:
-        :param items:
+        :param db: Ассинхронная транзакция
+        :param import_id: Инкремент импорта
+        :param date: дата
+        :param items: объекты - позиции
         :return:
         """
         # создаем схемы данных
@@ -117,6 +122,7 @@ class HandlerImport:
         date = data.updateDate
         items = data.items
 
+        # получаем инкремент
         async with db.begin():
             import_model = await self.handle_import(db, date)
 
@@ -124,6 +130,7 @@ class HandlerImport:
 
         import_id = import_model.id
 
+        # последовательность импорта
         async with db.begin():
             cnt = await self.handle_unit_import(db, import_id, date, items)
 
