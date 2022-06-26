@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Query
 
 from app.schema.response import ShopUnitStatisticResponse, ShopUnitNode
-from app.schema.base_schema import Error, ShopUnitType
+from app.schema.schemes import Error, ShopUnitType
 
 router = APIRouter()
 

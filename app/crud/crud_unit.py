@@ -3,12 +3,11 @@ from uuid import UUID
 from app.crud.base import CRUDBase
 from app.model.db_models import ShopUnitDB, ShopImportDB, ShopUnitImportDB
 
-from app.schema.base_schema import ShopImportSchema, ShopUnitSchema, ShopUnitImportSchema
+from app.schema.schemes import ShopImportSchema, ShopUnitSchema, ShopUnitImportSchema
 
 from sqlalchemy.ext.asyncio import AsyncSession as Session
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select, delete
-
+from sqlalchemy import select, delete, func
 
 class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
 
@@ -24,23 +23,39 @@ class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
         el = statement.scalars().all()
         return len(el) == 0
 
-    async def exists_newer(self, db: Session, date) -> int:
+    async def non_exists_newer(self, db: Session, date) -> int:
         """
         Функция для извлечения объекта из БД.
         Передаем параметры для фильтрации через kwargs.
         """
 
         statement = select(self.model)
-        statement = statement.filter(self.model.updateDate > date)
+        statement = statement.filter(self.model.updateDate >= date)
         statement = await db.execute(statement)
         el = statement.scalars().all()
         return len(el) == 0
 
+    def recalculate_avg_prices(self, db: Session) -> int:
+        """
+        Функция рекалькуляции средних значений для категорий
+        """
+        pass
+        #statement = select(self.model.c.parentId,func.max(self.model.c.parentId)).filter(self.model.type == 'OFFER').groupby(self.model.c.parentId)
+        #statement = await db.execute(statement)
+        #el = statement.scalars().all()
+        #return len(el) == 0
+
     async def remove(self, db: Session, unit_id: UUID) -> UUID:
         """
-        Функция для удаления объекта из БД.
-        Передаем параметры для фильтрации в kwargs.
+        Функция для удаления объекта из БД по id
         """
+        stmt = select(self.model).filter(self.model.id == unit_id)
+        stmt = await db.execute(stmt)
+        obj = stmt.scalars().all()
+
+        # если запрос пустой, то удаление не требуется и возвращаем, что объект не найден
+        if len(obj) == 0:
+            return None
 
         stmt = select(self.model).filter(getattr(self.model, "id") == unit_id)
         res = await db.execute(stmt)
@@ -51,7 +66,7 @@ class CRUDUnit(CRUDBase[ShopUnitDB, ShopUnitSchema, ShopUnitSchema]):
         statement = delete(self.model)
         statement = statement.filter(getattr(self.model, "id") == unit_id)
         statement = await db.execute(statement)
-        await db.commit()
+        #await db.commit()
 
         return unit_id
 

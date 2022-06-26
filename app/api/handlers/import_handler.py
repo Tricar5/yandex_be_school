@@ -6,7 +6,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
-from app.schema.base_schema import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
+from app.schema.schemes import ShopUnitImportSchema, ShopImportSchema, ShopUnitSchema
 from app.schema.request import ShopUnitImport, ShopUnitImportRequest
 from app.model.db_models import ShopImportDB, ShopUnitDB, ShopUnitImportDB
 from app.crud.crud_unit import CRUDUnitImport, CRUDImport, CRUDUnit
@@ -54,33 +54,41 @@ class HandlerImport:
 
     async def handle_unit_import(self, db, import_id: int, date: datetime,
                                  items: ShopUnitImport):
-        cnt = 0
-        for item in items:
-            schema_unit = self.generate_unit(date, item)
-            schema_unit_import = self.generate_unit_imports(import_id, date, item)
 
-            db_unit = ShopUnitDB(**schema_unit.dict())
+        schema_unit_import = [self.generate_unit_imports(import_id, date, item) for item in items]
+        db_unit_imports = [ShopUnitImportDB(**schema_unit_import.dict()) for schema_import in schema_unit_import]
 
-            db_unit_import = ShopUnitImportDB(**schema_unit_import.dict())
+        schema_unit = [self.generate_unit(date, item)  for item in items]
+        db_units = [ShopUnitDB(**schema_unit.dict()) for item in schema_unit]
+
+        n_exists = []
+        exists = []
+        for db_unit in db_units:
 
             # проверяем отсутствие элемента
 
-            res = await self.crud_unit.exists(db, db_unit.id)
+            not_ex = await self.crud_unit.exists(db, db_unit.id)
 
-            if res:
-                db_unit = await self.crud_unit.create(db=db, data=db_unit)
+            if not_ex:
+                n_exists.append(db_unit)
 
-            else: # элемент существует
-                # проверяем отсутствие элемента с большей датой обновления
-                newer = await self.crud_unit.exists_newer(db, db_unit.updateDate)
-                if newer:
-                    db_unit = await self.crud_unit.update(db=db, obj=db_unit, data=schema_unit)
+            else:
+                exists.append(db_unit)
 
-            # Добавляем записи импортов
-            db_unit_import = await self.crud_u_import.create(db=db, data=db_unit_import)
-            cnt += 1
+        if len(n_exists)>0:
+            if len(n_exists) == 1:
+                res = db.add(n_exists[0])
+            else:
+                db.add_all(n_exists)
 
-        return cnt
+        for db_unit in exists:
+
+            await self.crud_unit.update(db=db, obj=db_unit, data=db_unit.__dict__)
+
+        # Добавляем записи импортов
+        res = db.add_all(db_unit_imports)
+
+        return db
 
     async def handle(self, db, data: ShopUnitImportRequest) -> Dict:
 

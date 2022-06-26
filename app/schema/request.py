@@ -2,11 +2,9 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field, validator, ValidationError
+from pydantic import BaseModel, Field, validator
 
-
-from app.schema.base_schema import ShopUnitType
-from app.schema.base_schema import Error
+from app.schema.schemes import ShopUnitType, Error
 
 
 class ShopUnitImport(BaseModel):
@@ -26,6 +24,10 @@ class ShopUnitImport(BaseModel):
         default=None,
         description="Целое число, для категорий поле должно содержать null.",
     )
+
+    class Config:
+        orm_mode = True
+        use_enum_values = True
 
 
 class ShopUnitImportRequest(BaseModel):

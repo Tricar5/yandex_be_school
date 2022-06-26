@@ -6,7 +6,7 @@ from app.api.api import api_router
 
 from app.db.session import engine, Base
 from fastapi.exceptions import RequestValidationError
-from app.schema.base_schema import Error
+from app.schema.schemes import Error
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 

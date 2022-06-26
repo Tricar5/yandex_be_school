@@ -85,8 +85,6 @@ class ShopUnitImportSchema(ShopUnitSchema):
         use_enum_values = True
 
 
-
-
 class Error(BaseModel):
     code: int
     message: str

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud_unit import CRUDUnit, CRUDImport, CRUDUnitImport
 from app.api.handlers.import_handler import HandlerImport
-
+from app.api.handlers.сhild_handler import HandlerChildren
 
 async def get_db() -> Generator:
     db = SessionLocal()
@@ -28,6 +28,9 @@ def get_unit_import_crud() -> CRUDUnitImport:
 
 def get_unit_crud() -> CRUDUnit:
     return CRUDUnit(ShopUnitDB)
+
+async def get_child_handler() -> HandlerChildren:
+    return HandlerChildren(get_unit_crud())
 
 
 async def get_import_handler() -> HandlerImport:
