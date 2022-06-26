@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.schema.schemas import ShopUnitType
 
+
 class ShopUnitNode(BaseModel):
     id: UUID = Field(
         ...,
@@ -29,14 +30,13 @@ class ShopUnitNode(BaseModel):
     price: Optional[int] = Field(
         None,
         description="Целое число, для категории - это средняя цена всех дочерних товаров(включая товары "
-        "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
-        "числа. Если категория не содержит товаров цена равна null.",
+                    "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
+                    "числа. Если категория не содержит товаров цена равна null.",
     )
     children: Optional[List["ShopUnitNode"]] = Field(
         None,
         description="Список всех дочерних товаров\\категорий. Для товаров поле равно null.",
     )
-
 
 
 class ShopUnitStatisticUnit(BaseModel):
@@ -55,8 +55,8 @@ class ShopUnitStatisticUnit(BaseModel):
     price: Optional[int] = Field(
         None,
         description="Целое число, для категории - это средняя цена всех дочерних товаров(включая товары "
-        "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
-        "числа. Если категория не содержит товаров цена равна null.",
+                    "подкатегорий). Если цена является не целым числом, округляется в меньшую сторону до целого "
+                    "числа. Если категория не содержит товаров цена равна null.",
     )
     date: datetime = Field(..., description="Время последнего обновления элемента.")
 

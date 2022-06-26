@@ -70,13 +70,15 @@ class HandlerImport:
         :param items:
         :return:
         """
-
+        # создаем схемы данных
         schema_unit_import = [self.generate_unit_imports(import_id, date, item) for item in items]
         db_unit_imports = [ShopUnitImportDB(**schema.dict()) for schema in schema_unit_import]
 
+        # создаем модели данных ORM
         schema_unit = [self.generate_unit(date, item) for item in items]
         db_units = [ShopUnitDB(**schema.dict()) for schema in schema_unit]
 
+        # массив выгрузки
         n_exists = []
         exists = []
 
@@ -85,24 +87,27 @@ class HandlerImport:
             # проверяем отсутствие элемента
 
             not_ex = await self.crud_unit.exists(db, db_unit.id)
-
+            # Если получаем положительное значение, что не существует
+            # вставляем в очередь апдейта
             if not_ex:
                 n_exists.append(db_unit)
 
             else:
                 exists.append(db_unit)
 
+        # Вставляем недостающие данных
         if len(n_exists) > 0:
             if len(n_exists) == 1:
                 res = db.add(n_exists[0])
             else:
                 db.add_all(n_exists)
 
+        # Делаем апдейты...
         for i in range(len(exists)):
 
             exists[i] = await self.crud_unit.update(db=db, obj=exists[i], data=exists[i].__dict__)
 
-        # Добавляем записи импортов
+        # Добавляем записи импортов (товарная позиция и импорт)
         res = db.add_all(db_unit_imports)
 
         return res
